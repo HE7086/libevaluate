@@ -22,13 +22,16 @@ void Analyzer::visit(const Literal& node) {
     reg = make_unique<VALUE>(node.getCodeRef(), node.isFP() ? node.asDouble() : node.asInt());
 }
 void Analyzer::visit(const Function& node) {
-    const auto type = functionNames.find(node.getName().data());
+    const auto type = functionNames.find(string(node.getName()));
     if (type == functionNames.end()) {
         error(node.getCodeRef().getFrom(), node.getCode().size(), code,
               "Semantic Error: unknown function name");
     } else {
         vector<unique_ptr<AST>> parameters{};
         for (auto& ptr : node.getParameters()) {
+            if (ptr->getType() == Node::Type::GenericToken) {
+                continue;
+            }
             ptr->accept(*this);
             parameters.emplace_back(move(reg));
         }
