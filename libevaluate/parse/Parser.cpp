@@ -72,7 +72,7 @@ unique_ptr<Node> Parser::parseFunction() {
                   "Syntax Error: unexpected Token, should be: left bracket");
         }
         vector<unique_ptr<Node>> params{};
-        while (lexer.nasNext()) {
+        while (lexer.nasNext() || reg.has_value()) {
             Token t = next();
             switch (t.getType()) {
                 case Token::Type::RIGHT_BRACKET: {
@@ -83,7 +83,6 @@ unique_ptr<Node> Parser::parseFunction() {
                         make_unique<GenericToken>(t.getCodeRef(), Token::Type::RIGHT_BRACKET));
                 }
                 case Token::Type::COMMA: {
-                    reg.emplace(t);
                     params.emplace_back(
                         make_unique<GenericToken>(t.getCodeRef(), Token::Type::COMMA));
                     params.emplace_back(parseOptionalList<Pow>());
